@@ -1,10 +1,10 @@
-const { users } = "@prisma/client";
+const { {name} } = "@prisma/client";
 const { prisma } = "../../modules/prisma";
 const { buildSqlToPrismaClosures } = "../../utils/helpers";
 
-class Users {
+class {Name} {
     async get(id, select) {
-        const res = await prisma.users.findFirst({
+        const res = await prisma.{name}.findFirst({
             where: { id },
             select,
         });
@@ -12,12 +12,12 @@ class Users {
     }
 
     async create(data) {
-        const res = await prisma.users.create({ data });
+        const res = await prisma.{name}.create({ data });
         return res;
     }
 
     async update(id, data) {
-        const res = await prisma.users.update({
+        const res = await prisma.{name}.update({
             where: { id },
             data,
         });
@@ -26,30 +26,30 @@ class Users {
     }
 
     async updateAll(data) {
-        const res = await prisma.users.updateMany({
+        const res = await prisma.{name}.updateMany({
             data,
         });
 
         return res;
     }
 
-    async delete(id) {
-        const res = await prisma.users.delete({
+    async delete{Name}(id) {
+        const res = await prisma.{name}.delete({
             where: { id },
         });
 
         return res;
     }
 
-    async search(whereClosure, orderByClosure, select, limit = 10, skip = 0) {
+    async search(whereClosure, orderByClosure, limit = 10, skip = 0, select) {
         const { where, orderBy } = buildSqlToPrismaClosures(
             whereClosure,
             orderByClosure
         );
-        const res = await prisma.users.findMany({
+        const res = await prisma.{name}.findMany({
             where,
             orderBy,
-            select: select ? { ...selectDefault, ...select } : selectDefault,
+            select,
             take: Number(limit || 10),
             skip: Number(skip || 0),
         });
@@ -57,4 +57,4 @@ class Users {
     }
 }
 
-export default new Users();
+module.exports = new {Name}();

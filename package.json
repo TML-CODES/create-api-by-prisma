@@ -14,7 +14,6 @@
     "@prisma/client": "^5.15.0",
     "@prisma/sdk": "^4.0.0",
     "inquirer": "^8.2.6",
-    "prisma": "^5.15.0",
-    "typescript": "^5.4.5"
+    "prisma": "^5.15.0"
   }
 }
