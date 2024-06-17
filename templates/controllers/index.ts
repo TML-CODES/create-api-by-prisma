@@ -1,5 +1,5 @@
-import {name} from './{name}.controller';
+import replace_here from './replace_here.controller';
 
 export {
-    {name}Controller: {name}
+    replace_hereController: replace_here
 }

@@ -1,12 +1,12 @@
-const { {name} } = require("@prisma/client");
+const { replace_here } = require("@prisma/client");
 const { Request, Response, NextFunction } = require("express");
 const { UserData } = require("../types");
-const { {name}Repository } = require("../models/repositories");
+const { replace_hereRepository } = require("../models/repositories");
 
 exports.create = async(req, res, next)=>{
     try {
         const data = req.body;
-        const response = await {name}Repository.create(data);
+        const response = await replace_hereRepository.create(data);
         return res.status(201).send(response);
     } catch (error) {
         console.error(error);
@@ -15,9 +15,9 @@ exports.create = async(req, res, next)=>{
 }
 
 
-exports.delete{Name}(req, res, next)=>{
+exports.deleteReplace_Here = async(req, res, next)=>{
     const { id } = req.params;
-    const response = await {name}Repository.delete(id);
+    const response = await replace_hereRepository.delete(id);
     return res.status(201).send(response);
 }
 
@@ -25,7 +25,7 @@ exports.get = async(req, res, next)=>{
     try {
         const userData = req.cookies.userData;
         const id = req.params?.id || userData.id;
-        const response = await {name}Repository.get({id});
+        const response = await replace_hereRepository.get({id});
         return res.status(200).json(response);
     } catch (error) {
         return next(error);
@@ -38,7 +38,7 @@ exports.update = async (req, res, next)=>{
         const data = req.body;
         const id = req.params?.id || userData.id;
 
-        const response = await {name}Repository.update(id, data);
+        const response = await replace_hereRepository.update(id, data);
         return res.status(200).json(response);
     } catch (error) {
         return next(error);
@@ -48,7 +48,7 @@ exports.update = async (req, res, next)=>{
 exports.search = async (req, res, next)=>{
     try {
         const { orderBy, ...whereProps } = req.query;
-        const response = await {name}Repository.search(whereProps, orderBy);
+        const response = await replace_hereRepository.search(whereProps, orderBy);
         return res.status(200).send(response);
     } catch (error) {
         return next(error);

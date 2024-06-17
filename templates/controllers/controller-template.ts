@@ -1,12 +1,12 @@
-import { {name} } from "@prisma/client";
+import { replace_here } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 import { UserData } from "../types";
-import { {name}Repository } from "../models/repositories";
+import { replace_hereRepository } from "../models/repositories";
 
 export async function create(req: Request, res: Response, next: NextFunction) {
     try {
         const data = req.body;
-        const response = await {name}Repository.create(data);
+        const response = await replace_hereRepository.create(data);
         return res.status(201).send(response);
     } catch (error) {
         console.error(error);
@@ -14,10 +14,9 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-
-export async function delete{Name}(req: Request, res: Response, next: NextFunction) {
+export async function deleteReplace_Here(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const response = await {name}Repository.delete(id);
+    const response = await replace_hereRepository.delete(id);
     return res.status(201).send(response);
 }
 
@@ -25,7 +24,7 @@ export async function get(req: Request, res: Response, next: NextFunction) {
     try {
         const userData: UserData = req.cookies.userData;
         const id = req.params?.id || userData.id;
-        const response = await {name}Repository.get({id});
+        const response = await replace_hereRepository.get({id});
         return res.status(200).json(response);
     } catch (error) {
         return next(error);
@@ -38,7 +37,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         const data = req.body;
         const id = req.params?.id || userData.id;
 
-        const user = await {name}Repository.update(id, data);
+        const user = await replace_hereRepository.update(id, data);
         return res.status(200).json(user);
     } catch (error) {
         if(error.message.includes('Foreign key')){
@@ -52,7 +51,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 export async function search(req: Request, res: Response, next: NextFunction) {
     try {
         const { orderBy, ...whereProps } = <any> req.query;
-        const response = await {name}Repository.search(whereProps, orderBy);
+        const response = await replace_hereRepository.search(whereProps, orderBy);
         return res.status(200).send(response);
     } catch (error) {
         return next(error);

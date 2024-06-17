@@ -1,5 +1,5 @@
-const {name} = require('./{name}.controller');
+const replace_here = require('./replace_here.controller');
 
 module.exports = {
-    {name}Controller: {name}
+    replace_hereController: replace_here
 }

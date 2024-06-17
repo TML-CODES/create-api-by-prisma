@@ -18,7 +18,7 @@ async function convertPrismaSchemaToJson(schemaPath) {
     }
 }
 
-let typeSelected = '';
+let typeSelected = process.env.TYPE_OUTPUT || '';
 
 async function getModelsPrisma(){
     const questions = [
@@ -41,56 +41,85 @@ async function getModelsPrisma(){
     
     const modelsPrisma = json.datamodel.models.map((m) => m.name)
     return modelsPrisma;
-}
+} 
 
-(async ()=> {
+const folders = [
+    {
+        className: 'controller',
+        folder_path: 'controllers'
+    },
+    {
+        className: 'repository',
+        folder_path: 'models/repositories'
+    },
+    {
+        className: 'routes',
+        folder_path: 'routes'
+    }
+]
+
+async function main() {
     const modelsPrisma = await getModelsPrisma()
     console.log('Modelos', modelsPrisma);
 
-    const modelsNamesWithFirstUpArr = [];
+    const tableNamesWithFirstUpArr = [];
 
-    for(const modelName of modelsPrisma){
-        const modelNameWithFirstUp = modelName[0].toUpperCase() + modelName.slice(1)
-        modelsNamesWithFirstUpArr.push(modelNameWithFirstUp)
-
-        // REPOSITORIES
-        if(!fs.existsSync(path.resolve('./src/models')) || !fs.existsSync(path.resolve('./src/models/repositories'))){
-            fs.mkdirSync('./src/models/repositories', { recursive: true })
-        }
-
-        if(fs.existsSync(path.resolve(`./src/models/repositories/${modelNameWithFirstUp}.repository.${typeSelected}`))){
-            continue;
-        }
-
-        let repositoriesTemplateContent = fs.readFileSync(`./templates/models/repositories/repositories-template.${typeSelected}`, 'utf8').toString()
+    for(const { className, folder_path } of folders){
+        const SRC_PATH = path.resolve(`./src/${folder_path}`)
         
-        repositoriesTemplateContent.replace(/({name})/g, modelName).replace(/({Name})/g, modelNameWithFirstUp)
+        for(const TABLE_NAME of modelsPrisma){
 
-        fs.writeFileSync(path.resolve(`./src/models/repositories`, `${modelNameWithFirstUp}.repository.${typeSelected}`), repositoriesTemplateContent)
+            const TABLE_NAME_WITH_1UP = TABLE_NAME[0].toUpperCase() + TABLE_NAME.slice(1)
+            
+            if(!tableNamesWithFirstUpArr.find(t => t == TABLE_NAME_WITH_1UP))
+                tableNamesWithFirstUpArr.push(TABLE_NAME_WITH_1UP)
 
-        // CONTROLLERS
+            // FILES BY TABLES
+            if(!fs.existsSync(SRC_PATH)){
+                fs.mkdirSync(SRC_PATH, { recursive: true })
+            }
+    
+            if(fs.existsSync(`${SRC_PATH}/${TABLE_NAME_WITH_1UP}.${className}.${typeSelected}`)){
+                continue;
+            }
+    
+            let templateContent = fs.readFileSync(`./templates/${folder_path}/${className}-template.${typeSelected}`, 'utf8').toString()
+            templateContent = templateContent.replace(/(replace_here)/g, TABLE_NAME).replace(/(Replace_Here)/g, TABLE_NAME_WITH_1UP)
+    
+            fs.writeFileSync(`${SRC_PATH}/${TABLE_NAME_WITH_1UP}.${className}.${typeSelected}`, templateContent)
+
+        }
+        
+        const CLASS_NAME_WITH_1UP = className[0].toUpperCase() + className.slice(1)
+        
+        // INDEXES
+        let indexTemplateContent = fs.readFileSync(`./templates/${folder_path}/index.${typeSelected}`, 'utf8').toString()
+    
+        const arrLinesIndexRepositories = indexTemplateContent.split('\n')
+        const lineExportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(CLASS_NAME_WITH_1UP))
+        const lineImportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(`.${className}`))
+        
+        const lineExports = arrLinesIndexRepositories[lineExportsIndex];
+        const lineImports = arrLinesIndexRepositories[lineImportsIndex];
+        
+        arrLinesIndexRepositories[lineExportsIndex] =  tableNamesWithFirstUpArr.map((tableNameWithFirstUp, index) =>{
+            return lineExports.replace(/(replace_here)/g, modelsPrisma[index]).replace(/(Replace_Here)/g, tableNameWithFirstUp)
+        }).join(`${(className == 'routes') ? '' : ','}\n`)
+    
+        arrLinesIndexRepositories[lineImportsIndex] = tableNamesWithFirstUpArr.map((tableNameWithFirstUp, index)=>{
+            return lineImports.replace(/(replace_here)/g, modelsPrisma[index]).replace(/(Replace_Here)/g, tableNameWithFirstUp)
+        }).join('\n')
+    
+        fs.writeFileSync(path.resolve(SRC_PATH, `index.${typeSelected}`), arrLinesIndexRepositories.join('\n'))
     }
 
-    // INDEXES
+    // Auth Controller
+    if(!fs.existsSync(path.resolve(`./src/controllers/auth.controller.${typeSelected}`))){
+        let authTemplateContent = fs.readFileSync(`./templates/controllers/auth-template.${typeSelected}`, 'utf8').toString()
+        fs.writeFileSync(path.resolve(`./src/controllers/auth.controller.${typeSelected}`), authTemplateContent)
+    }
 
-    // index repositories
-    let repositoriesIndexTemplateContent = fs.readFileSync(`./templates/models/repositories/index.${typeSelected}`, 'utf8').toString()
+    console.log('!! FIM !!')
+}
 
-    const arrLinesIndexRepositories = repositoriesIndexTemplateContent.split('\n')
-    const lineExportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes("Repository"))
-    const lineImportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(".repository"))
-
-    const lineExports = arrLinesIndexRepositories[lineExportsIndex];
-    const lineImports = arrLinesIndexRepositories[lineImportsIndex];
-
-    
-    arrLinesIndexRepositories[lineExportsIndex] =  modelsNamesWithFirstUpArr.map((modelNameWithFirstUp, index) =>{
-        return lineExports.replace(/({name})/g, modelsPrisma[index]).replace(/({Name})/g, modelNameWithFirstUp)
-    }).join(',\n')
-
-    arrLinesIndexRepositories[lineImportsIndex] = modelsNamesWithFirstUpArr.map((modelNameWithFirstUp, index)=>{
-        return lineImports.replace(/({name})/g, modelsPrisma[index]).replace(/({Name})/g, modelNameWithFirstUp)
-    }).join('\n')
-
-    fs.writeFileSync(path.resolve(`./src/models/repositories`, `index.${typeSelected}`), arrLinesIndexRepositories.join('\n'))
-})()
+main()

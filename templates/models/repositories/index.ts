@@ -1,5 +1,5 @@
-import {Name} from './{Name}.repository';
+import Replace_Here from './Replace_Here.repository';
 
 export {
-    {name}Repository: {Name}
+    replace_hereRepository: Replace_Here
 }

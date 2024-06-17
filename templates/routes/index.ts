@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { {name} } from "./{name}.routes";
+import { replace_here } from "./replace_here.routes";
 
 const router = Router();
 
-router.use("/{name}", {name});
+router.use("/replace_here", replace_hereRoutes);
 
 export default router;

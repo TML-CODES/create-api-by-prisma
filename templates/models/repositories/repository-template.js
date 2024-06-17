@@ -1,10 +1,10 @@
-const { {name} } = "@prisma/client";
+const { replace_here } = "@prisma/client";
 const { prisma } = "../../modules/prisma";
 const { buildSqlToPrismaClosures } = "../../utils/helpers";
 
-class {Name} {
+class Replace_Here {
     async get(id, select) {
-        const res = await prisma.{name}.findFirst({
+        const res = await prisma.replace_here.findFirst({
             where: { id },
             select,
         });
@@ -12,12 +12,12 @@ class {Name} {
     }
 
     async create(data) {
-        const res = await prisma.{name}.create({ data });
+        const res = await prisma.replace_here.create({ data });
         return res;
     }
 
     async update(id, data) {
-        const res = await prisma.{name}.update({
+        const res = await prisma.replace_here.update({
             where: { id },
             data,
         });
@@ -26,15 +26,15 @@ class {Name} {
     }
 
     async updateAll(data) {
-        const res = await prisma.{name}.updateMany({
+        const res = await prisma.replace_here.updateMany({
             data,
         });
 
         return res;
     }
 
-    async delete{Name}(id) {
-        const res = await prisma.{name}.delete({
+    async deleteReplace_Here(id) {
+        const res = await prisma.replace_here.delete({
             where: { id },
         });
 
@@ -46,7 +46,7 @@ class {Name} {
             whereClosure,
             orderByClosure
         );
-        const res = await prisma.{name}.findMany({
+        const res = await prisma.replace_here.findMany({
             where,
             orderBy,
             select,
@@ -57,4 +57,4 @@ class {Name} {
     }
 }
 
-module.exports = new {Name}();
+module.exports = new Replace_Here();

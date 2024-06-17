@@ -1,5 +1,5 @@
-const {Name} = require('./{Name}.repository');
+const Replace_Here = require('./Replace_Here.repository');
 
 module.exports = {
-    {name}Repository: {Name}
+    replace_hereRepository: Replace_Here
 }
