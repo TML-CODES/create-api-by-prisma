@@ -10,20 +10,12 @@ model users {
   id                  String          @id @default(uuid()) 
   name                String
   password            String?
-  createdAt           DateTime?        @default(now())
-  updatedAt           DateTime?        @updatedAt
-
-  sessions            session[]
-}
-
-model session {
-  id                  String           @id @default(uuid()) 
-  userId              String?
-  user                users?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken         String?          @db.Text
   refreshToken        String?          @db.Text
   code                String?
   expCode             DateTime?
   createdAt           DateTime?        @default(now())
   updatedAt           DateTime?        @updatedAt
+
+  sessions            session[]
 }

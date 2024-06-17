@@ -113,10 +113,15 @@ async function main() {
         fs.writeFileSync(path.resolve(SRC_PATH, `index.${typeSelected}`), arrLinesIndexRepositories.join('\n'))
     }
 
-    // Auth Controller
+    // Auth 
     if(!fs.existsSync(path.resolve(`./src/controllers/auth.controller.${typeSelected}`))){
-        let authTemplateContent = fs.readFileSync(`./templates/controllers/auth-template.${typeSelected}`, 'utf8').toString()
-        fs.writeFileSync(path.resolve(`./src/controllers/auth.controller.${typeSelected}`), authTemplateContent)
+        const authControllerTemplateContent = fs.readFileSync(`./templates/controllers/auth-template.${typeSelected}`, 'utf8').toString()
+        fs.writeFileSync(path.resolve(`./src/controllers/auth.controller.${typeSelected}`), authControllerTemplateContent)
+    }
+
+    if(!fs.existsSync(path.resolve(`./src/routes/auth.routes.${typeSelected}`))){
+        const authRouterTemplateContent = fs.readFileSync(`./templates/routes/auth.routes.${typeSelected}`, 'utf8').toString()
+        fs.writeFileSync(path.resolve(`./src/routes/auth.routes.${typeSelected}`), authRouterTemplateContent)
     }
 
     console.log('!! FIM !!')
