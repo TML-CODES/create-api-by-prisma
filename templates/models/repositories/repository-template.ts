@@ -20,7 +20,7 @@ class Replace_Here {
         return res;
     }
     
-    async update(id: string, data: replace_here) {
+    async update(id: string, data: Partial<replace_here>) {
         const res = await prisma.replace_here.update({
             where: { id },
             data
