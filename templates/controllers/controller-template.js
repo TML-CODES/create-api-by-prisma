@@ -17,7 +17,7 @@ exports.create = async(req, res, next)=>{
 
 exports.deleteReplace_Here = async(req, res, next)=>{
     const { id } = req.params;
-    const response = await replace_hereRepository.delete(id);
+    const response = await replace_hereRepository.deleteReplace_Here(id);
     return res.status(201).send(response);
 }
 
