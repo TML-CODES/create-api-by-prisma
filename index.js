@@ -65,6 +65,7 @@ async function main() {
     const tableNamesWithFirstUpArr = [];
 
     for(const { className, folder_path } of folders){
+        console.log(className)
         const SRC_PATH = path.resolve(`./src/${folder_path}`)
         
         for(const TABLE_NAME of modelsPrisma){
@@ -100,14 +101,14 @@ async function main() {
     
         const arrLinesIndexRepositories = indexTemplateContent.split('\n')
         const lineImportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(`.${className}`))
-        const lineExportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(`replace_here${CLASS_NAME_WITH_1UP},`))
+        const lineExportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes((className == 'routes') ? `"/replace_here",` : `replace_here${CLASS_NAME_WITH_1UP},`))
         
         const lineExports = arrLinesIndexRepositories[lineExportsIndex];
         const lineImports = arrLinesIndexRepositories[lineImportsIndex];
         
         arrLinesIndexRepositories[lineExportsIndex] =  tableNamesWithFirstUpArr.map((tableNameWithFirstUp, index) =>{
             return lineExports.replace(/(replace_here)/g, modelsPrisma[index]).replace(/(Replace_Here)/g, tableNameWithFirstUp)
-        }).join(`${(className == 'routes') ? '' : ','}\n`)
+        }).join(`\n`)
     
         arrLinesIndexRepositories[lineImportsIndex] = tableNamesWithFirstUpArr.map((tableNameWithFirstUp, index)=>{
             return lineImports.replace(/(replace_here)/g, modelsPrisma[index]).replace(/(Replace_Here)/g, tableNameWithFirstUp)
