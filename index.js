@@ -79,7 +79,10 @@ async function main() {
                 fs.mkdirSync(SRC_PATH, { recursive: true })
             }
     
-            if(fs.existsSync(`${SRC_PATH}/${TABLE_NAME_WITH_1UP}.${className}.${typeSelected}`)){
+            if(
+                fs.existsSync(`${SRC_PATH}/${TABLE_NAME_WITH_1UP}.${className}.${typeSelected}`) 
+                || fs.existsSync(`${SRC_PATH}/${TABLE_NAME}.${className}.${typeSelected}`)
+            ){
                 continue;
             }
     
@@ -96,8 +99,8 @@ async function main() {
         let indexTemplateContent = fs.readFileSync(`./templates/${folder_path}/index.${typeSelected}`, 'utf8').toString()
     
         const arrLinesIndexRepositories = indexTemplateContent.split('\n')
-        const lineExportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(CLASS_NAME_WITH_1UP))
         const lineImportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(`.${className}`))
+        const lineExportsIndex = arrLinesIndexRepositories.findIndex(l => l.includes(`replace_here${CLASS_NAME_WITH_1UP},`))
         
         const lineExports = arrLinesIndexRepositories[lineExportsIndex];
         const lineImports = arrLinesIndexRepositories[lineImportsIndex];

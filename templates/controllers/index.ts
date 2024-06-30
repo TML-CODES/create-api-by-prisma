@@ -1,5 +1,5 @@
 import * as replace_hereController from './replace_here.controller';
 
-export default {
-    replace_hereController
+export {
+    replace_hereController,
 }
