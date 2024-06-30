@@ -23,7 +23,7 @@ export async function get(req: Request, res: Response, next: NextFunction) {
     try {
         const userData: UserData = req.cookies.userData;
         const id = req.params?.id || userData.id;
-        const response = await replace_hereRepository.get({id});
+        const response = await replace_hereRepository.get(id);
         return res.status(200).json(response);
     } catch (error) {
         return next(error);
