@@ -86,7 +86,7 @@ async function main() {
             let templateContent = fs.readFileSync(`./templates/${folder_path}/${className}-template.${typeSelected}`, 'utf8').toString()
             templateContent = templateContent.replace(/(replace_here)/g, TABLE_NAME).replace(/(Replace_Here)/g, TABLE_NAME_WITH_1UP)
     
-            fs.writeFileSync(`${SRC_PATH}/${TABLE_NAME_WITH_1UP}.${className}.${typeSelected}`, templateContent)
+            fs.writeFileSync(`${SRC_PATH}/${(className == 'repository') ? TABLE_NAME_WITH_1UP : TABLE_NAME}.${className}.${typeSelected}`, templateContent)
 
         }
         

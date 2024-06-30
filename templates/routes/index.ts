@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { replace_here } from "./replace_here.routes";
+import replace_hereRoutes from "./replace_here.routes";
 
 const router = Router();
 
