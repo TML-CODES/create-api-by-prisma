@@ -38,13 +38,13 @@ class Replace_Here {
     }
 
     async search<T extends Prisma.replace_hereFindManyArgs>(
-        where?: Prisma.SelectSubset<T, Prisma.replace_hereFindManyArgs>['where'], 
+        whereClosure?: string | Prisma.SelectSubset<T, Prisma.replace_hereFindManyArgs>['where'], 
         orderByClosure?: string | Prisma.SelectSubset<T, Prisma.replace_hereFindManyArgs>['orderBy'],
         limit = 10,
         skip = 0,
         select?: Prisma.SelectSubset<T, Prisma.replace_hereFindManyArgs>['select']
     ) {
-        const { orderBy } = buildSqlToPrismaClosures(orderByClosure);
+        const { where, orderBy } = buildSqlToPrismaClosures(whereClosure, orderByClosure);
         const res = await prisma.replace_here.findMany({
             where,
             orderBy: orderBy || { createdAt: 'desc' },

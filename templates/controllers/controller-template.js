@@ -47,8 +47,8 @@ exports.update = async (req, res, next)=>{
 
 exports.search = async (req, res, next)=>{
     try {
-        const { orderBy, ...whereProps } = req.query;
-        const response = await replace_hereRepository.search(whereProps, orderBy);
+        const { where, orderBy, limit, skip, ...whereProps } = req.query;
+        const response = await replace_hereRepository.search(where || whereProps, orderBy, limit, skip);
         return res.status(200).send(response);
     } catch (error) {
         return next(error);
