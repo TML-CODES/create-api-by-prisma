@@ -18,7 +18,7 @@ exports.deleteReplace_Here = async(req, res, next)=>{
     try{
         const { id } = req.params;
         const response = await replace_hereRepository.deleteReplace_Here(id);
-        return res.status(201).send(response);
+        return res.status(202).send(response);
     } catch (error) {
         return next(error); 
     }
