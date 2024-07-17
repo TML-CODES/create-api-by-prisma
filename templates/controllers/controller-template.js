@@ -9,16 +9,19 @@ exports.create = async(req, res, next)=>{
         const response = await replace_hereRepository.create(data);
         return res.status(201).send(response);
     } catch (error) {
-        console.error(error);
         return next(error); 
     }
 }
 
 
 exports.deleteReplace_Here = async(req, res, next)=>{
-    const { id } = req.params;
-    const response = await replace_hereRepository.deleteReplace_Here(id);
-    return res.status(201).send(response);
+    try{
+        const { id } = req.params;
+        const response = await replace_hereRepository.deleteReplace_Here(id);
+        return res.status(201).send(response);
+    } catch (error) {
+        return next(error); 
+    }
 }
 
 exports.get = async(req, res, next)=>{

@@ -3,19 +3,532 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
-model users {
-  id                  String          @id @default(uuid()) 
-  name                String
-  password            String?
-  accessToken         String?          @db.Text
-  refreshToken        String?          @db.Text
-  code                String?
-  expCode             DateTime?
-  createdAt           DateTime?        @default(now())
-  updatedAt           DateTime?        @updatedAt
 
-  sessions            session[]
+enum internalRoles {
+  admin
+  superadmin
+  corretora_admin
+  corretora_colaborador
+}
+
+model planos {
+  nome       String   @id
+  title      String
+  preco      Decimal  @db.Decimal(65, 2)
+  descricao  String?  @db.Text
+  beneficios Json?    @db.Json
+  isActive   Boolean? @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model plansTransactions {
+  id               String      @id @default(uuid())
+  plano_id         String
+  plano_nome       String
+  preco            Decimal     @db.Decimal(65, 2)
+  beneficios       Json?       @db.Json
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  payment_gateway  String?
+  payment_method   String?
+  payment_response String?
+  orderId          String?
+  status           String?
+  corretoraId      String?
+  corretora        corretoras? @relation("CorretoraRef", fields: [corretoraId], references: [id])
+
+  corretoras corretoras[] @relation("PlanTransactionRef")
+}
+
+model users {
+  id               String         @id @default(uuid())
+  nome             String
+  password         String?
+  cpf              String?        @unique
+  email            String         @unique
+  phone            String?
+  dataNascimento   DateTime?
+  access_token     String?        @db.Text
+  refresh_token    String?        @db.Text
+  auth_code        String?
+  lastInteraction  DateTime?
+  internalRole     internalRoles?
+  permissions      Json?          @db.Json
+  corretoraId      String?
+  corretora        corretoras?    @relation(fields: [corretoraId], references: [id])
+  isActive         Boolean        @default(true)
+  documentsLink    String?
+  enderecoCompleto String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  profissional  profissionais[]
+  logs          logs[]
+  endosso       endosso[]
+  contasPagar   contasPagar[]
+  contasReceber contasReceber[]
+}
+
+enum tipoCliente {
+  PJ
+  PF
+}
+
+model clientes {
+  id                 String         @id @default(uuid())
+  nome               String
+  tipo_cliente       tipoCliente
+  razao_social       String?
+  cpf                String         @unique
+  cnpj               String?        @unique
+  email              String         @unique
+  email_pj           String?        @unique
+  dataNascimento     DateTime?
+  phone              String?
+  phone_pj           String?
+  documentsLink      String?
+  nome_reponsavel_pj String?
+  end_rua            String?
+  end_numero         String?
+  end_complemento    String?
+  end_cep            String?
+  end_estado         String?
+  end_cidade         String?
+  situacao           String?
+  isActive           Boolean?       @default(true)
+  isTitular          Boolean?       @default(true)
+  titularId          String?
+  titular            clientes?      @relation("ClienteTitular_Fk", fields: [titularId], references: [id])
+  corretoraId        String?
+  corretora          corretoras?    @relation(fields: [corretoraId], references: [id])
+  profissionalId     String?
+  profissional       profissionais? @relation(fields: [profissionalId], references: [id])
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  clientes    clientes[]    @relation("ClienteTitular_Fk")
+  vendas      vendas[]
+  dependentes dependentes[]
+}
+
+model permissionsGroup {
+  nome        String @id
+  title       String
+  permissions Json   @db.Json
+}
+
+model corretoras {
+  id                String             @id @default(cuid())
+  razao_social      String?
+  nome_fantasia     String
+  cnpj              String?
+  responsavel       String
+  email             String
+  telefone          String?
+  whatsapp          String?
+  end_rua           String?
+  end_numero        String?
+  end_complemento   String?
+  end_cep           String?
+  end_estado        String?
+  end_cidade        String?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  planTransactionId String?
+  planTransaction   plansTransactions? @relation("PlanTransactionRef", fields: [planTransactionId], references: [id])
+
+  users                 users[]
+  administradoras       administradoras[]
+  seguradoras           seguradoras[]
+  plansTransactions     plansTransactions[]     @relation("CorretoraRef")
+  clientes              clientes[]
+  entidades             entidades[]
+  profissionais         profissionais[]
+  ramos                 ramos[]
+  modalidadeContratacao modalidadeContratacao[]
+  produtos              produtos[]
+  taxasDesconto         taxasDesconto[]
+  regraComissao         regraComissao[]
+  regraRepasse          regraRepasse[]
+  agenciamento          agenciamento[]
+  vendas                vendas[]
+  contasPagar           contasPagar[]
+  contasReceber         contasReceber[]
+  logs                  logs[]
+}
+
+enum profissionaisRoles {
+  vendedor
+  indicador
+}
+
+model profissionais {
+  id                String             @id @default(uuid())
+  nome              String
+  role              profissionaisRoles
+  userId            String?
+  user              users?             @relation(fields: [userId], references: [id])
+  corretoraId       String?
+  corretora         corretoras?        @relation(fields: [corretoraId], references: [id])
+  valor_comissao    Float?
+  tipo_comissao     String?
+  document          String?            @unique
+  phone             String?
+  email             String?
+  isActive          Boolean            @default(true)
+  situacao          String?
+  pix               String?
+  banco             String?
+  agencia           String?
+  conta             String?
+  tipoConta         String?
+  endereco_completo String?
+  documentsLink     String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  clientes        clientes[]
+  contasReceber   contasReceber[]
+  contasPagar     contasPagar[]
+  regraRepasse    regraRepasse[]
+  vendasVendedor  vendas[]        @relation("Vendedor_Fk")
+  vendasIndicador vendas[]        @relation("Indicador_Fk")
+}
+
+model administradoras {
+  id            String      @id @default(cuid())
+  razao_social  String      @unique
+  nome_fantasia String?
+  cnpj          String      @unique
+  responsavel   String?
+  email         String      @unique
+  telefone      String?
+  whatsapp      String?
+  corretoraId   String?
+  corretora     corretoras? @relation(fields: [corretoraId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  vendas        vendas[]
+  contasReceber contasReceber[]
+}
+
+model entidades {
+  id            String      @id @default(cuid())
+  razao_social  String      @unique
+  nome_fantasia String?
+  cnpj          String      @unique
+  responsavel   String?
+  email         String      @unique
+  telefone      String?
+  whatsapp      String?
+  corretoraId   String?
+  corretora     corretoras? @relation(fields: [corretoraId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  regraComissao regraComissao[]
+  regraRepasse  regraRepasse[]
+  contasReceber contasReceber[]
+}
+
+model seguradoras {
+  id            String      @id @default(cuid())
+  razao_social  String      @unique
+  nome_fantasia String?
+  cnpj          String      @unique
+  responsavel   String?
+  email         String      @unique
+  telefone      String?
+  whatsapp      String?
+  corretoraId   String?
+  corretora     corretoras? @relation(fields: [corretoraId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  produtos      produtos[]
+  taxasDesconto taxasDesconto[]
+  regraComissao regraComissao[]
+  regraRepasse  regraRepasse[]
+  vendas        vendas[]
+  contasReceber contasReceber[]
+}
+
+model ramos {
+  id          String      @id @default(cuid())
+  nome        String      @unique
+  sigla       String      @unique
+  categoria   String?
+  descricao   String?
+  corretoraId String?
+  corretora   corretoras? @relation(fields: [corretoraId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  produtos      produtos[]
+  taxasDesconto taxasDesconto[]
+  regraComissao regraComissao[]
+  regraRepasse  regraRepasse[]
+}
+
+model modalidadeContratacao {
+  id          String      @id @default(cuid())
+  nome        String      @unique
+  sigla       String      @unique
+  descricao   String?
+  corretoraId String?
+  corretora   corretoras? @relation(fields: [corretoraId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  produtos      produtos[]
+  taxasDesconto taxasDesconto[]
+  regraComissao regraComissao[]
+  regraRepasse  regraRepasse[]
+}
+
+model produtos {
+  id                      String                 @id @default(cuid())
+  nome                    String                 @unique
+  descricao               String?
+  preco_base              Decimal?               @db.Decimal(65, 2)
+  valor_final             Decimal                @db.Decimal(65, 2)
+  corretoraId             String?
+  corretora               corretoras?            @relation(fields: [corretoraId], references: [id])
+  ramoId                  String?
+  ramo                    ramos?                 @relation(fields: [ramoId], references: [id])
+  modalidadeContratacaoId String?
+  modalidadeContratacao   modalidadeContratacao? @relation(fields: [modalidadeContratacaoId], references: [id])
+  seguradoraId            String?
+  seguradora              seguradoras?           @relation(fields: [seguradoraId], references: [id])
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  vendas vendas[]
+}
+
+model taxasDesconto {
+  id                      String                 @id @default(cuid())
+  total                   Float?
+  tributos_rede           Float?
+  fundos                  Float?
+  taxa_administracao      Float?
+  taxa_servico            Float?
+  isActive                Boolean?               @default(true)
+  corretoraId             String?
+  corretora               corretoras?            @relation(fields: [corretoraId], references: [id])
+  ramoId                  String?
+  ramo                    ramos?                 @relation(fields: [ramoId], references: [id])
+  modalidadeContratacaoId String?
+  modalidadeContratacao   modalidadeContratacao? @relation(fields: [modalidadeContratacaoId], references: [id])
+  seguradoraId            String?
+  seguradora              seguradoras?           @relation(fields: [seguradoraId], references: [id])
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  vendas vendas[]
+}
+
+enum taxaCadastro {
+  porcentagem
+  preco
+}
+
+model regraComissao {
+  id                      String                 @id @default(cuid())
+  nome                    String?
+  isActive                Boolean?               @default(true)
+  tipo_taxa_cadastro      taxaCadastro?          @default(porcentagem)
+  taxa_cadastro           Float?                 @default(0)
+  percentualVitalicio     Float?                 @default(0)
+  qntParcelasVitalicias   Int?
+  temVitalicio            Boolean?               @default(false)
+  temAgenciamento         Boolean?               @default(false)
+  parcelasIlimitadas      Boolean?               @default(false)
+  corretoraId             String?
+  corretora               corretoras?            @relation(fields: [corretoraId], references: [id])
+  ramoId                  String?
+  ramo                    ramos?                 @relation(fields: [ramoId], references: [id])
+  entidadeId              String?
+  entidade                entidades?             @relation(fields: [entidadeId], references: [id])
+  modalidadeContratacaoId String?
+  modalidadeContratacao   modalidadeContratacao? @relation(fields: [modalidadeContratacaoId], references: [id])
+  seguradoraId            String?
+  seguradora              seguradoras?           @relation(fields: [seguradoraId], references: [id])
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  agenciamento agenciamento[]
+  vendas       vendas[]
+}
+
+model regraRepasse {
+  id                      String                 @id @default(cuid())
+  nome                    String?
+  isActive                Boolean?               @default(true)
+  tipo_taxa_cadastro      taxaCadastro?          @default(porcentagem)
+  taxa_cadastro           Float?                 @default(0)
+  percentualVitalicio     Float?                 @default(0)
+  qntParcelasVitalicias   Int?
+  temVitalicio            Boolean?               @default(false)
+  temAgenciamento         Boolean?               @default(false)
+  parcelasIlimitadas      Boolean?               @default(false)
+  corretoraId             String?
+  corretora               corretoras?            @relation(fields: [corretoraId], references: [id])
+  ramoId                  String?
+  ramo                    ramos?                 @relation(fields: [ramoId], references: [id])
+  entidadeId              String?
+  entidade                entidades?             @relation(fields: [entidadeId], references: [id])
+  modalidadeContratacaoId String?
+  modalidadeContratacao   modalidadeContratacao? @relation(fields: [modalidadeContratacaoId], references: [id])
+  seguradoraId            String?
+  seguradora              seguradoras?           @relation(fields: [seguradoraId], references: [id])
+  vendedorId              String?
+  vendedor                profissionais?         @relation(fields: [vendedorId], references: [id])
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  vendas       vendas[]
+  agenciamento agenciamento[]
+}
+
+model agenciamento {
+  id          String         @id @default(cuid())
+  parcela     Int?
+  corretoraId String
+  corretora   corretoras?    @relation(fields: [corretoraId], references: [id])
+  comissaoId  String?
+  comissao    regraComissao? @relation(fields: [comissaoId], references: [id])
+  repasseId   String?
+  repasse     regraRepasse?  @relation(fields: [repasseId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model vendas {
+  id                      String           @id @default(cuid())
+  comissao_indicador      Float?
+  tipo_comissao_indicador String?
+  quemRecebeuTaxaCadastro String?
+  desconto_negociacao     String?
+  isActive                Boolean?         @default(true)
+  status                  String?
+  documentsLink           String?
+  vencimento_ciclo        DateTime?
+  valor_original          Decimal          @db.Decimal(65, 2)
+  valor_final             Decimal          @db.Decimal(65, 2)
+  promocao                String?
+  ciclo                   String?
+  corretoraId             String
+  corretora               corretoras       @relation(fields: [corretoraId], references: [id])
+  seguradoraId            String?
+  seguradora              seguradoras?     @relation(fields: [seguradoraId], references: [id])
+  produtoId               String?
+  produto                 produtos?        @relation(fields: [produtoId], references: [id])
+  administradoraId        String?
+  administradora          administradoras? @relation(fields: [administradoraId], references: [id])
+  clienteId               String
+  cliente                 clientes?        @relation(fields: [clienteId], references: [id])
+  vendedorId              String?
+  vendedor                profissionais?   @relation("Vendedor_Fk", fields: [vendedorId], references: [id])
+  indicadorId             String?
+  indicador               profissionais?   @relation("Indicador_Fk", fields: [indicadorId], references: [id])
+  comissaoId              String?
+  comissao                regraComissao?   @relation(fields: [comissaoId], references: [id])
+  repasseId               String?
+  repasse                 regraRepasse?    @relation(fields: [taxaDescontoId], references: [id])
+  taxaDescontoId          String?
+  taxaDesconto            taxasDesconto?   @relation(fields: [repasseId], references: [id])
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  dependentes   dependentes[]
+  endosso       endosso[]
+  contasReceber contasReceber[]
+}
+
+model dependentes {
+  id             String    @id @default(uuid())
+  vendaId        String
+  venda          vendas?   @relation(fields: [vendaId], references: [id])
+  beneficiarioId String
+  beneficiario   clientes? @relation(fields: [beneficiarioId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model endosso {
+  id         String   @id @default(uuid())
+  vendaId    String
+  venda      vendas?  @relation(fields: [vendaId], references: [id])
+  alteracoes String?  @db.Text
+  authorId   String?
+  author     users?   @relation(fields: [authorId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model contasPagar {
+  id                       String         @id @default(uuid())
+  corretoraId              String
+  corretora                corretoras     @relation(fields: [corretoraId], references: [id])
+  profissionalId           String
+  profissional             profissionais? @relation(fields: [profissionalId], references: [id])
+  authorId                 String
+  author                   users?         @relation(fields: [authorId], references: [id])
+  valor                    Decimal        @db.Decimal(65, 2)
+  data_provisionado        DateTime?
+  data_pagar               DateTime?
+  data_pagamento_realizado DateTime?
+  titulo                   String?
+  descricao                String?
+  status                   String?
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+}
+
+model contasReceber {
+  id                String           @id @default(uuid())
+  corretoraId       String
+  corretora         corretoras       @relation(fields: [corretoraId], references: [id])
+  authorId          String?
+  author            users?           @relation(fields: [authorId], references: [id])
+  profissionalId    String
+  profissional      profissionais?   @relation(fields: [profissionalId], references: [id])
+  entidadeId        String?
+  entidade          entidades?       @relation(fields: [entidadeId], references: [id])
+  administradoraId  String?
+  administradora    administradoras? @relation(fields: [administradoraId], references: [id])
+  seguradoraId      String?
+  seguradora        seguradoras?     @relation(fields: [seguradoraId], references: [id])
+  vendaId           String
+  venda             vendas?          @relation(fields: [vendaId], references: [id])
+  valor             Decimal          @db.Decimal(65, 2)
+  data_provisionado DateTime?
+  data_receber      DateTime?
+  data_recebimento  DateTime?
+  titulo            String?
+  descricao         String?
+  status            String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model logs {
+  id          String     @id @default(uuid())
+  userId      String?
+  user        users?     @relation(fields: [userId], references: [id])
+  corretoraId String
+  corretora   corretoras @relation(fields: [corretoraId], references: [id])
+  endpoint    String?
+  descricao   String?
+  antes       String?
+  depois      String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }

@@ -8,21 +8,24 @@ export async function create(req: Request, res: Response, next: NextFunction) {
         const response = await replace_hereRepository.create(data);
         return res.status(201).send(response);
     } catch (error) {
-        console.error(error);
         return next(error); 
     }
 }
 
 export async function deleteReplace_Here(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.params;
-    const response = await replace_hereRepository.deleteReplace_Here(id);
-    return res.status(201).send(response);
+    try {
+        const { id } = req.params;
+        const response = await replace_hereRepository.deleteReplace_Here(id);
+        return res.status(201).send(response);
+    } catch (error) {
+        return next(error);
+    }
 }
 
 export async function get(req: Request, res: Response, next: NextFunction) {
     try {
         const userData: UserData = req.cookies.userData;
-        const id = req.params?.id || userData.id;
+        const id = req.params?.id;
         const response = await replace_hereRepository.get(id);
         return res.status(200).json(response);
     } catch (error) {
@@ -34,16 +37,12 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     try {
         const userData: UserData = req.cookies.userData;
         const data = req.body;
-        const id = req.params?.id || userData.id;
+        const id = req.params?.id;
 
-        const user = await replace_hereRepository.update(id, data);
-        return res.status(200).json(user);
+        const response = await replace_hereRepository.update(id, data);
+        return res.status(200).json(response);
     } catch (error) {
-        if(error.message.includes('Foreign key')){
-            return res.status(403).send({ message: 'Email ou cpf já cadastrado' });
-        }else{
-            return next(error);
-        }
+        return next(error);
     }
 }
 
