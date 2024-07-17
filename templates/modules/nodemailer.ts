@@ -1,6 +1,6 @@
 import * as nodemailer from 'nodemailer';
 
-export default async function(
+export async function sendEmail(
     toEmails: string | string[], 
     title: string,
     html: string, 
