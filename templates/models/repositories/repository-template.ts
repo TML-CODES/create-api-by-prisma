@@ -21,6 +21,9 @@ class Replace_Here {
     }
     
     async update(id: string, data: Partial<replace_here>) {
+        if(data.id){
+            delete data.id;
+        }
         const res = await prisma.replace_here.update({
             where: { id },
             data
