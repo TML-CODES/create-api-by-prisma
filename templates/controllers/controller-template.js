@@ -17,6 +17,10 @@ exports.create = async(req, res, next)=>{
 exports.deleteReplace_Here = async(req, res, next)=>{
     try{
         const { id } = req.params;
+        const oldData = await replace_hereRepository.get(id);
+        if(!oldData){
+            return res.status(404).send({ message: 'Not found.' });
+        }
         const response = await replace_hereRepository.deleteReplace_Here(id);
         return res.status(202).send(response);
     } catch (error) {
@@ -29,6 +33,9 @@ exports.get = async(req, res, next)=>{
         const userData = req.cookies.userData;
         const id = req.params?.id || userData.id;
         const response = await replace_hereRepository.get(id);
+        if(!response){
+            return res.status(404).send({ message: 'Not found.' });
+        }
         return res.status(200).json(response);
     } catch (error) {
         return next(error);
@@ -41,6 +48,11 @@ exports.update = async (req, res, next)=>{
         const data = req.body;
         const id = req.params?.id || userData.id;
 
+        const oldData = await replace_hereRepository.get(id);
+        if(!oldData){
+            return res.status(404).send({ message: 'Not found.' });
+        }
+        
         const response = await replace_hereRepository.update(id, data);
         return res.status(200).json(response);
     } catch (error) {
