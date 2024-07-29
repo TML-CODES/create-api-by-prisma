@@ -3,6 +3,7 @@ const { getDMMF } = require("@prisma/sdk");
 const path = require("path");
 const fs = require("fs");
 const inquirer = require('inquirer');
+const createPostmanCollection = require('./createRequestsPostmanByRoutes');
 
 
 async function convertPrismaSchemaToJson(schemaPath) {
@@ -127,6 +128,8 @@ async function main() {
         const authRouterTemplateContent = fs.readFileSync(`./templates/routes/auth.routes.${typeSelected}`, 'utf8').toString()
         fs.writeFileSync(path.resolve(`./src/routes/auth.routes.${typeSelected}`), authRouterTemplateContent)
     }
+
+    createPostmanCollection(modelsPrisma);
 
     console.log('!! FIM !!')
 }
