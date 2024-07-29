@@ -25,7 +25,7 @@ export async function deleteReplace_Here(req: Request, res: Response, next: Next
 export async function get(req: Request, res: Response, next: NextFunction) {
     try {
         const userData: UserData = req.cookies.userData;
-        const id = req.params?.id;
+        const id = req.params?.id || userData.id;
         const response = await replace_hereRepository.get(id);
         return res.status(200).json(response);
     } catch (error) {
@@ -37,7 +37,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     try {
         const userData: UserData = req.cookies.userData;
         const data = req.body;
-        const id = req.params?.id;
+        const id = req.params?.id || userData.id;
 
         const response = await replace_hereRepository.update(id, data);
         return res.status(200).json(response);
