@@ -3,3 +3,4 @@ node_modules/
 !.env.example
 src/**
 !src/.gitkeep
+postman/collection.json
