@@ -7,14 +7,13 @@
     "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Talisson Luques - TML Codes Desenvolvimento de Software Ltda.",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.15.0",
     "@prisma/sdk": "^4.0.0",
     "inquirer": "^8.2.6",
-    "nodemailer": "^6.9.13",
     "prisma": "^5.15.0"
   }
 }

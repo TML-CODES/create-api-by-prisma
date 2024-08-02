@@ -41,6 +41,7 @@ const template = {
  * @param {string[]} routes 
  */
 module.exports = (routes)=>{
+    console.log(`Criando Postman Collection. Routes =>`, routes);
     
     for(let i = 0; i < routes.length; i++){
         const route = routes[i];
